@@ -172,3 +172,39 @@ Because the lattice already computes physical pressure oscillations, exciton glo
    $$f_0 = 440 \, c(\mathbf{x}) = 440 \sqrt{\frac{K(\mathbf{x})}{\rho(\mathbf{x})}}$$
    High-stiffness `PiezoQuartz` rings with bright crystalline harmonics, while dense `ObsidianAnvil` produces low metallic clangs. Sub-threshold vacuum ripples ($|p| < 0.15$) are gated to exact `(0.0, 0.0)` silence.
 
+---
+
+## 7. Supplemental Q&A: How Projectiles Exist in the Field
+
+> **Reader Question:** *"The bullets in your shmup—are those just treated as particles in a pilot-wave model or something?"*
+
+**Short Answer:** No. Projectiles are not passive point particles riding a separate pilot wave. In **Dzog**, weapons fire **solitons** (self-focusing wave packets) coupled directly to the GPU wave-matter lattice.
+
+### 7.1 Plain Explanation: Messengers vs. The Nonlinear Trampoline
+- **Traditional Engine (Isolated Messengers):** Space is an empty coordinate void. Firing 50 bullets spawns 50 isolated structs that do not interact with the space between them; the CPU checks bounding boxes every frame and decrements integer hitpoints (`hp -= 1`) on contact.
+- **Dzog (The Nonlinear Trampoline):** The arena is a single taut trampoline mat of interconnected GPU cells (`240×150` lattice). Firing a weapon punches the mat in a specific direction (`DirectionalWavePacket` + `SolitonCarrierPulse`), sending a tight, self-contained **bump (a soliton)** across the fabric. Because the wave equation includes a nonlinear self-focusing law $f_{\text{nl}}(p)$, high-amplitude peaks pull themselves inward rather than flattening out like linear pond ripples.
+
+### 7.2 Why It Matters to the Engine (Pure Field vs. Hybrid Carrier Coupling)
+Following the engine's **Hybrid Pragmatism** principle (`philosophy.md`), Dzog splits projectile physics into two layers:
+1. **Pure Continuum Solitons & Phase-Locked Carriers (`SolitonCarrierPulse`):**
+   - In pure `dzog-core` continuum tests, a `DirectionalWavePacket` propagates, reflects off impedance boundaries, and erodes material cohesion $C$ purely through neighbor-to-neighbor FDTD stencil updates with zero projectile structs.
+   - In fast-paced gameplay (`shmup` and `asteroids`), purely acoustic waves are speed-limited by the grid's CFL bound ($c_{\text{max}}$). To let fast ordnance outrun ambient shockwaves without grid dispersion on a `240×150` lattice, the game loop maintains a lightweight carrier list (`Vec<SolitonBolt>`) that **phase-locks** each traveling shot into the lattice every substep via `SolitonCarrierPulse::couple_to_lattice`. Every shot continuously injects local pressure $p$, directional face velocity $(v_x, v_y)$, and exciton luminescence $L$ along its flight path.
+2. **Where Pilot-Wave ($Q$) Mechanics Enters:**
+   - Bohmian *active information* ($-\nabla Q$) does not carry point-particle bullets; it is the **navigation layer**. Swarm drones (`BohmianSwarmDrone`), alien craft (`BohmianSaucer`), and contested `PowerCube`s read the normalized spatial curvature of the wavefield ($Q = -\nabla^2 R / R$) to surf standing-wave valleys and weave around incoming fire without pathfinding graphs.
+3. **Emergent Wave Combat:**
+   - *Bullet Hell as Interference:* Crossing wave wakes superpose in the `State` texture into constructive peaks or destructive troughs, creating $-\nabla p$ radiation-pressure wakes and $-\nabla Q$ guidance ridges that buffet nearby ships and shards.
+   - *Phase-Canceling Shields:* Triggering an `AntiphaseShieldPulse` intercepts incoming enemy bolts and injects an inverted wavefront ($\Delta \phi = \pi$) into the lattice, measuring the drop in local Hamiltonian field energy ($\Delta H = E_{\text{before}} - E_{\text{after}}$) to recharge the ship's weapon capacitor.
+   - *Topological Cleaving:* Ships and asteroids are regions of high structural cohesion $C(\mathbf{x}) \in [0, 1]$. Overpressure ($|p| > p_{\text{yield}}$) and direct bolt strikes carve directional fracture waveguides (`carve_cleavage_fissure`) and impart $\mathbf{r} \times \mathbf{J}$ recoil torque until a connected-component BFS splits the hull into tumbling fragments.
+
+### 7.3 Technical Details: What Lives in the 4 GPU Textures During a Barrage
+The GPU pipeline (`dzog-wgpu`) operates over fixed-size `RGBA32Float` lattice textures (`State`, `Luminescence`, `Material`, and `Boundary`; see `readme.md` §Workspace Architecture):
+
+| Lattice Channel / Texture | Trampoline Analogy | Role During a Projectile Barrage |
+| :--- | :--- | :--- |
+| **Pressure ($p$)** *(`State.r`, cell center)* | How high or low this exact spot on the mat is pushed right now. | Stores the active wave amplitude; projectile peaks are held compact against dispersion by the rational soliton law $f_{\text{nl}}(p)$ and `SolitonCarrierPulse` injection. |
+| **Velocity ($v_x, v_y$)** *(`State.gb`, staggered East/North faces)* | Which way tension pulls between adjacent squares. | Encodes the directional momentum and Poynting energy flux ($\mathbf{I} = p\mathbf{v}$) of each traveling wave packet. |
+| **Bohmian Potential ($Q$)** *(`State.a`, curvature $-\nabla^2 R / R$)* | The normalized slope and curvature geometry stretching around wave peaks ($R = \sqrt{p^2 + \epsilon^2}$). | Acts as an early-warning guidance field, allowing AI craft and Chladni swarms to sense incoming salvos and surf quiet nodal valleys. |
+| **Material ($\rho, K, \gamma, C$)** *(`Material.rgba`, cell center)* | Whether a cell is vacuum ($C=0$) or a solid crystalline hull/asteroid ($C \in (0, 1]$). | Projectiles travel through vacuum ($\rho=1, K=1$) and transfer momentum into high-impedance hulls ($Z = \sqrt{\rho K}$), eroding cohesion $C \to 0$ along stress planes. |
+
+
+
