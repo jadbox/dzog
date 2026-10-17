@@ -1,8 +1,7 @@
 # The Ontology of Field-First Computing
-### Philosophical and Physical Foundations of the Dzog Engine
+### Philosophical and Physical Foundations of the Dzog Engine [github.com/jadbox/dzog](https://github.com/jadbox/dzog)
 
-**Author:** Jonathan Dunlap ([LinkedIn](https://www.linkedin.com/in/jonathandunlap)
-*Dzog Project Repository:* [github.com/jadbox/dzog](https://github.com/jadbox/dzog)
+**Author:** Jonathan Dunlap ([LinkedIn](https://www.linkedin.com/in/jonathandunlap))
 
 ---
 
