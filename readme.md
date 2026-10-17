@@ -35,7 +35,7 @@ Just as a raster display uses a 2D array of *pixels* for color, Dzog uses a 2D a
 4. **Topological Fracture & Annealing**: Solid structures are regions of high cell cohesion rather than integer hitpoint counters (`hp: 3`). Overpressure carves internal crack waveguides until bodies cleave topologically into tumbling fragments; capturing piezoelectric condensates re-anneals severed crystal wings cell by cell.
 5. **Unified Sight & Sound**: Following James Hillman's *situated image*, visuals, 3D crystal lighting, and real-time Doppler audio are direct projections of the same evolving field state—requiring zero `.wav` files or detached particle scripts.
 
-For the full mathematical handbook, intellectual lineage, and GPU architecture, read the [**Field-First Engine Whitepaper (`docs/field_first_whitepaper.md`)**](./docs/field_first_whitepaper.md).
+For the full technical handbook, read the Field-First Engine Whitepaper below.
 
 ---
 
@@ -62,6 +62,14 @@ tools/build_web.sh
 
 ---
 
+## Documentation
+
+- [**Field-First Engine Whitepaper (`docs/field_first_whitepaper.md`)**](./docs/field_first_whitepaper.md): Comprehensive engine handbook—governing equations, de Broglie / Bohm / Hiley theoretical foundations, Yee-staggered numerics, and WGPU compute layout.
+- [**Philosophy (`philosophy.md`)**](./philosophy.md): Relation-first computing, critique of symbolic isolation, and the `Encounter -> Perturb -> Compare -> Commit -> Compose` loop.
+- [**Audio Overview (`docs/overview_audio.md`)**](./docs/overview_audio.md): Material-tuned modal synthesis, binaural cockpit probes, and `bevy_audio` integration.
+
+---
+
 ## Workspace Crates
 
 | Crate | Purpose |
@@ -71,14 +79,6 @@ tools/build_web.sh
 | [`crates/dzog-bevy`](./crates/dzog-bevy) | Bevy engine integration: field canvas rendering, diagnostic view modes, GPU compute scheduling, and native `bevy_audio` streaming. |
 | [`crates/shmup`](./crates/shmup) | **Crystalline Corridor**: Vertical wave-stream shmup with Tri-Lobe crystal ships, Chladni swarm carriers, and annealing power cubes. |
 | [`asteroids`](./asteroids) | **Crystalline Asteroids**: Toroidal arena with multi-mineral crystal cleavage, antiphase shields, and Bohmian alien craft. |
-
----
-
-## Documentation
-
-- [**Field-First Engine Whitepaper (`docs/field_first_whitepaper.md`)**](./docs/field_first_whitepaper.md): Comprehensive engine handbook—governing equations, de Broglie / Bohm / Hiley theoretical foundations, Yee-staggered numerics, and WGPU compute layout.
-- [**Philosophy (`philosophy.md`)**](./philosophy.md): Relation-first computing, critique of symbolic isolation, and the `Encounter -> Perturb -> Compare -> Commit -> Compose` loop.
-- [**Audio Overview (`docs/overview_audio.md`)**](./docs/overview_audio.md): Material-tuned modal synthesis, binaural cockpit probes, and `bevy_audio` integration.
 
 ---
 
