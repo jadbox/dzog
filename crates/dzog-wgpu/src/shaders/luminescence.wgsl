@@ -14,7 +14,11 @@ struct SimParams {
     beta: f32,
     alpha: f32,
     threshold_decay: f32,
-    _pad: f32,
+    kerr_lensing: f32,
+    bohmian_guidance: f32,
+    _pad0: f32,
+    _pad1: f32,
+    _pad2: f32,
 }
 
 @group(0) @binding(0) var<uniform> params: SimParams;
@@ -89,20 +93,20 @@ fn main(@builtin(global_invocation_id) global_id: vec3<u32>) {
     let v_sq = vx * vx + vy * vy;
 
     var wave_src = 0.0;
-    if (p_abs > 0.24) {
-        wave_src = (p_abs - 0.24) * 0.55 + v_sq * 0.28;
+    if (p_abs > 0.36) {
+        wave_src = (p_abs - 0.36) * 0.42 + v_sq * 0.18;
     }
 
     var piezo_src = 0.0;
-    if (coh >= 0.15 && p_abs > 0.12) {
-        var piezo_gain = 0.75;
+    if (coh >= 0.15 && p_abs > 0.38) {
+        var piezo_gain = 0.55;
         if (rho < 0.90) {
-            piezo_gain = 1.35;
+            piezo_gain = 0.85;
         }
-        piezo_src = p_abs * (1.25 - 0.45 * coh) * piezo_gain;
+        piezo_src = (p_abs - 0.38) * (1.10 - 0.40 * coh) * piezo_gain;
     }
 
-    let decay_l = exp(-1.35 * params.dt);
+    let decay_l = exp(-1.85 * params.dt);
     let l_next = clamp(
         decay_l * (l_c + diff_coeff * lap_l * params.dt) + (wave_src + piezo_src) * params.dt,
         0.0,

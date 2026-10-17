@@ -320,4 +320,24 @@ fn test_progressive_enemy_fracturing_and_ground_waveguide_chain_detonation() {
         game.bolts.iter().all(|b| b.from_player),
         "Critically broken enemy ship must never fire projectiles"
     );
+
+    // 6. Check long-run stability over 600 frames
+    let mut long_game = ShmupFieldGame::new(240, 135);
+    long_game.autopilot_enabled = true;
+    for _ in 0..600 {
+        long_game.step();
+        let max_p = long_game
+            .solver
+            .state
+            .pressure
+            .iter()
+            .map(|p| p.abs())
+            .fold(0.0f32, f32::max);
+        let sum_l: f32 = long_game.solver.state.luminescence.iter().sum();
+        assert!(
+            max_p.is_finite() && max_p < 8.0 && sum_l < 1500.0 && long_game.field_energy.total < 2000.0,
+            "Shmup field must remain bounded without runaway wave or fire-ribbon escalation (max_p={max_p}, sum_l={sum_l}, E={})",
+            long_game.field_energy.total
+        );
+    }
 }

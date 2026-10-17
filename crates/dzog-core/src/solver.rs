@@ -6,7 +6,8 @@ use crate::grid::{AcousticState, GridConfig};
 use crate::material::MaterialField;
 use crate::probe::PressureProbe;
 
-/// Nonlinear constitutive field parameters for solitary wave cohesion.
+/// Nonlinear constitutive field parameters for solitary wave cohesion, graded-index Kerr
+/// self-channeling (`kerr_lensing`), and Madelung/Bohm-Hiley internal velocity guidance (`bohmian_guidance`).
 #[derive(Debug, Clone, Copy, PartialEq, Serialize, Deserialize)]
 pub struct NonlinearLaw {
     /// Soliton focusing strength (0.0 = pure linear acoustics).
@@ -15,6 +16,33 @@ pub struct NonlinearLaw {
     pub alpha: f32,
     /// Sub-threshold background decay rate.
     pub threshold_decay: f32,
+    /// Graded-index Kerr self-channeling coefficient `chi_lens >= 0.0`.
+    /// High-amplitude cores locally slow their phase velocity `K_eff(p) <= K`, focusing wave
+    /// energy inward to counteract 2D transverse diffraction while strictly preserving CFL stability.
+    #[serde(default)]
+    pub kerr_lensing: f32,
+    /// Internal Bohm-Hiley quantum potential guidance `-kappa_Q grad(Q)` coupled into the
+    /// lattice face velocity update (`velocity.wgsl` / `solver.rs`).
+    #[serde(default)]
+    pub bohmian_guidance: f32,
+}
+
+impl NonlinearLaw {
+    pub const fn new(beta: f32, alpha: f32, threshold_decay: f32) -> Self {
+        Self {
+            beta,
+            alpha,
+            threshold_decay,
+            kerr_lensing: 0.0,
+            bohmian_guidance: 0.0,
+        }
+    }
+
+    pub const fn with_de_broglie_guidance(mut self, kerr_lensing: f32, bohmian_guidance: f32) -> Self {
+        self.kerr_lensing = kerr_lensing;
+        self.bohmian_guidance = bohmian_guidance;
+        self
+    }
 }
 
 impl Default for NonlinearLaw {
@@ -23,6 +51,8 @@ impl Default for NonlinearLaw {
             beta: 0.0,
             alpha: 1.0,
             threshold_decay: 0.0,
+            kerr_lensing: 0.0,
+            bohmian_guidance: 0.0,
         }
     }
 }
@@ -148,8 +178,46 @@ impl AcousticSolver {
         let inv_dy = 1.0 / dy;
 
         // -------------------------------------------------------------
-        // Pass 1: Staggered velocity half-step update
+        // Pass 1: Staggered velocity half-step update + Bohm-Hiley Q evaluation
         // -------------------------------------------------------------
+        if self.state.bohmian_q.len() != w * h {
+            self.state.bohmian_q.resize(w * h, 0.0);
+        }
+
+        // Evaluate Bohm-Hiley Quantum Potential Q = -Laplacian(R) / R from p^n (matches velocity.wgsl)
+        let periodic_q = self.boundary.outer_rule == OuterBoundaryRule::Periodic;
+        let inv_dx2 = inv_dx * inv_dx;
+        let inv_dy2 = inv_dy * inv_dy;
+        let eps_sq = 0.0064f32;
+        for y in 0..h {
+            for x in 0..w {
+                let idx = y * w + x;
+                if periodic_q || (x > 0 && x + 1 < w && y > 0 && y + 1 < h) {
+                    let xe = (x + 1) % w;
+                    let xw = (x + w - 1) % w;
+                    let yn = (y + 1) % h;
+                    let ys = (y + h - 1) % h;
+
+                    let p_c = self.state.pressure[idx];
+                    let p_e = self.state.pressure[y * w + xe];
+                    let p_w = self.state.pressure[y * w + xw];
+                    let p_n = self.state.pressure[yn * w + x];
+                    let p_s = self.state.pressure[ys * w + x];
+
+                    let r_c = (p_c * p_c + eps_sq).sqrt();
+                    let r_e = (p_e * p_e + eps_sq).sqrt();
+                    let r_w = (p_w * p_w + eps_sq).sqrt();
+                    let r_n = (p_n * p_n + eps_sq).sqrt();
+                    let r_s = (p_s * p_s + eps_sq).sqrt();
+
+                    let lap_r = (r_e - 2.0 * r_c + r_w) * inv_dx2 + (r_n - 2.0 * r_c + r_s) * inv_dy2;
+                    self.state.bohmian_q[idx] = -lap_r / r_c;
+                } else {
+                    self.state.bohmian_q[idx] = 0.0;
+                }
+            }
+        }
+
         // Horizontal velocity vx on East faces
         for y in 0..h {
             for x in 0..w {
@@ -161,7 +229,9 @@ impl AcousticSolver {
                 } else if x + 1 < w {
                     // Interior face between (x, y) and (x + 1, y)
                     let idx_r = self.state.config.index(x + 1, y);
-                    let grad_p = (self.state.pressure[idx_r] - self.state.pressure[idx]) * inv_dx;
+                    let p_c = self.state.pressure[idx];
+                    let p_r = self.state.pressure[idx_r];
+                    let grad_p = (p_r - p_c) * inv_dx;
                     let rho_face = self.material.face_density_east(x, y);
                     let gamma_face = self.material.face_damping_east(x, y);
 
@@ -177,7 +247,9 @@ impl AcousticSolver {
                         }
                         OuterBoundaryRule::Periodic => {
                             let idx_wrap = self.state.config.index(0, y);
-                            let grad_p = (self.state.pressure[idx_wrap] - self.state.pressure[idx]) * inv_dx;
+                            let p_c = self.state.pressure[idx];
+                            let p_w = self.state.pressure[idx_wrap];
+                            let grad_p = (p_w - p_c) * inv_dx;
                             let rho_face = self.material.face_density_east_periodic(x, y);
                             let gamma_face = self.material.face_damping_east_periodic(x, y);
                             let decay = fast_neg_exp(gamma_face * dt);
@@ -200,7 +272,9 @@ impl AcousticSolver {
                 } else if y + 1 < h {
                     // Interior face between (x, y) and (x, y + 1)
                     let idx_t = self.state.config.index(x, y + 1);
-                    let grad_p = (self.state.pressure[idx_t] - self.state.pressure[idx]) * inv_dy;
+                    let p_c = self.state.pressure[idx];
+                    let p_t = self.state.pressure[idx_t];
+                    let grad_p = (p_t - p_c) * inv_dy;
                     let rho_face = self.material.face_density_north(x, y);
                     let gamma_face = self.material.face_damping_north(x, y);
 
@@ -215,7 +289,9 @@ impl AcousticSolver {
                         }
                         OuterBoundaryRule::Periodic => {
                             let idx_wrap = self.state.config.index(x, 0);
-                            let grad_p = (self.state.pressure[idx_wrap] - self.state.pressure[idx]) * inv_dy;
+                            let p_c = self.state.pressure[idx];
+                            let p_w = self.state.pressure[idx_wrap];
+                            let grad_p = (p_w - p_c) * inv_dy;
                             let rho_face = self.material.face_density_north_periodic(x, y);
                             let gamma_face = self.material.face_damping_north_periodic(x, y);
                             let decay = fast_neg_exp(gamma_face * dt);
@@ -232,6 +308,8 @@ impl AcousticSolver {
         // -------------------------------------------------------------
         let has_cohesion = self.material.cohesion.len() == w * h
             && self.material.yield_pressure.len() == w * h;
+        let kerr_lensing = self.config.nonlinearity.kerr_lensing;
+        let alpha_nl = self.config.nonlinearity.alpha;
 
         for y in 0..h {
             for x in 0..w {
@@ -276,13 +354,22 @@ impl AcousticSolver {
                 let gamma = self.material.damping[idx];
                 let decay = fast_neg_exp(gamma * dt);
 
-                let p_linear = decay * self.state.pressure[idx] - (k * dt) * div_v;
-
                 // Nonlinear solitary field dynamics in open medium;
                 // never amplify static pressure inside solid-state structures or blocked boundary walls.
                 let is_solid_or_wall = (has_cohesion && self.material.cohesion[idx] > 0.0)
                     || self.boundary.wall_east[idx]
                     || self.boundary.wall_north[idx];
+
+                let p_old = self.state.pressure[idx];
+                let k_eff = if kerr_lensing > 0.0 && !is_solid_or_wall {
+                    let lens = (kerr_lensing * p_old * p_old) / (1.0 + alpha_nl * p_old * p_old);
+                    k * (1.0 - lens).max(0.35)
+                } else {
+                    k
+                };
+
+                let p_linear = decay * p_old - (k_eff * dt) * div_v;
+
                 let p_new = if self.config.nonlinearity.beta > 0.0 && !is_solid_or_wall {
                     let beta = self.config.nonlinearity.beta;
                     let alpha = self.config.nonlinearity.alpha;
@@ -339,7 +426,7 @@ impl AcousticSolver {
         let inv_dx2 = 1.0 / (self.state.config.dx * self.state.config.dx);
         let inv_dy2 = 1.0 / (self.state.config.dy * self.state.config.dy);
         let has_cohesion = self.material.cohesion.len() == count;
-        let decay_l = (-1.35 * dt).exp();
+        let decay_l = (-1.85 * dt).exp();
 
         let old_l = self.state.luminescence.clone();
         for y in 0..h {
@@ -385,14 +472,14 @@ impl AcousticSolver {
                 let v_sq = vx * vx + vy * vy;
 
                 // Source excitation from intense wave packets / solitons and piezoelectric crystal stress
-                let wave_src = if p_abs > 0.24 {
-                    (p_abs - 0.24) * 0.55 + v_sq * 0.28
+                let wave_src = if p_abs > 0.36 {
+                    (p_abs - 0.36) * 0.42 + v_sq * 0.18
                 } else {
                     0.0
                 };
-                let piezo_src = if coh >= 0.15 && p_abs > 0.12 {
-                    let piezo_gain = if rho < 0.90 { 1.35 } else { 0.75 };
-                    p_abs * (1.25 - 0.45 * coh) * piezo_gain
+                let piezo_src = if coh >= 0.15 && p_abs > 0.38 {
+                    let piezo_gain = if rho < 0.90 { 0.85 } else { 0.55 };
+                    (p_abs - 0.38) * (1.10 - 0.40 * coh) * piezo_gain
                 } else {
                     0.0
                 };

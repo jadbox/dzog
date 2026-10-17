@@ -35,15 +35,15 @@ If an engine eliminates rigid-body projectile structs so that a plasma bolt or a
 ### 2.3 Technical Details: The Saturating Soliton Law
 A wave packet that balances dispersion with self-focusing is called a **soliton**. Standard textbook equations for solitons (such as cubic Kerr nonlinearity, $\beta p^3$) have a fatal flaw for real-time software: when two large waves collide, the cubic term grows without bound (`NaN`), crashing the simulation.
 
-Dzog solves this by adding a **bounded, rational nonlinear term** $f_{\text{nl}}(p)$ to the compressible acoustic wave equations:
+Dzog solves this by combining a **bounded, rational nonlinear source term** $f_{\text{nl}}(p)$ and **graded-index Kerr self-channeling** $K_{\text{eff}}(p)$ in the compressible wave equations, while evaluating the Bohm–Hiley quantum potential $Q(\mathbf{x}, t)$ alongside the staggered velocity update:
 
 $$\rho(\mathbf{x}) \frac{\partial \mathbf{v}}{\partial t} = -\nabla p - \rho(\mathbf{x})\gamma(\mathbf{x})\mathbf{v}$$
 
-$$\frac{\partial p}{\partial t} = -K(\mathbf{x})\nabla \cdot \mathbf{v} - \gamma(\mathbf{x})p + f_{\text{nl}}(p) + s(\mathbf{x}, t)$$
+$$\frac{\partial p}{\partial t} = -K_{\text{eff}}(\mathbf{x}, p)\nabla \cdot \mathbf{v} - \gamma(\mathbf{x})p + f_{\text{nl}}(p) + s(\mathbf{x}, t)$$
 
-where the nonlinear self-focusing law is defined as:
+where the nonlinear self-focusing law and graded-index bulk modulus are defined as:
 
-$$f_{\text{nl}}(p) = \frac{\beta \, p}{1 + \alpha \, p^2} - \kappa \, p$$
+$$f_{\text{nl}}(p) = \frac{\beta \, p}{1 + \alpha \, p^2} - \kappa \, p, \qquad K_{\text{eff}}(\mathbf{x}, p) = K(\mathbf{x}) \max\!\left(0.35, \; 1 - \frac{\chi_{\text{lens}} \, p^2}{1 + \alpha \, p^2}\right)$$
 
 Each parameter serves a specific systems engineering goal:
 
@@ -52,6 +52,8 @@ Each parameter serves a specific systems engineering goal:
 | **$\beta > 0$** | **Self-Focusing Gain** | Pulls high-energy wave peaks inward so projectiles hold a compact, particle-like shape across the screen. |
 | **$\alpha > 0$** | **Safety Ceiling (Saturation)** | Caps maximum amplification at $\frac{\beta}{2\sqrt{\alpha}}$ as $p \to \infty$, preventing `NaN` blowups when shockwaves collide. |
 | **$\kappa > 0$** | **Noise Gate (Vacuum Scrubbing)** | Dampens low-amplitude ripples below the soliton threshold so empty space stays clean and quiet. |
+| **$\chi_{\text{lens}} \ge 0$** | **De Broglie Kerr Self-Channeling (`kerr_lensing`)** | Slightly slows phase speed inside high-amplitude cores ($c_{\text{eff}} \le c_{\text{max}}$), creating a convex graded-index waveguide that prevents 2D transverse spreading while strictly preserving the CFL stability bound. |
+| **$\kappa_Q \ge 0$** | **Bohm–Hiley Pilot-Wave Guidance (`bohmian_guidance`)** | Steers soliton cores (`SolitonBolt::step_in_field`) and field-coupled actors (`reduce_body.wgsl`) along $-\nabla Q$ curvature valleys without introducing unstable 3rd-order derivatives into the hyperbolic FDTD velocity stencil. |
 
 ---
 
@@ -184,17 +186,19 @@ Because the lattice already computes physical pressure oscillations, exciton glo
 - **Traditional Engine (Isolated Messengers):** Space is an empty coordinate void. Firing 50 bullets spawns 50 isolated structs that do not interact with the space between them; the CPU checks bounding boxes every frame and decrements integer hitpoints (`hp -= 1`) on contact.
 - **Dzog (The Nonlinear Trampoline):** The arena is a single taut trampoline mat of interconnected GPU cells (`240×150` lattice). Firing a weapon punches the mat in a specific direction (`DirectionalWavePacket` + `SolitonCarrierPulse`), sending a tight, self-contained **bump (a soliton)** across the fabric. Because the wave equation includes a nonlinear self-focusing law $f_{\text{nl}}(p)$, high-amplitude peaks pull themselves inward rather than flattening out like linear pond ripples.
 
-### 7.2 Why It Matters to the Engine (Pure Field vs. Hybrid Carrier Coupling)
-Following the engine's **Hybrid Pragmatism** principle (`philosophy.md`), Dzog splits projectile physics into two layers:
-1. **Pure Continuum Solitons & Phase-Locked Carriers (`SolitonCarrierPulse`):**
-   - In pure `dzog-core` continuum tests, a `DirectionalWavePacket` propagates, reflects off impedance boundaries, and erodes material cohesion $C$ purely through neighbor-to-neighbor FDTD stencil updates with zero projectile structs.
-   - In fast-paced gameplay (`shmup` and `asteroids`), purely acoustic waves are speed-limited by the grid's CFL bound ($c_{\text{max}}$). To let fast ordnance outrun ambient shockwaves without grid dispersion on a `240×150` lattice, the game loop maintains a lightweight carrier list (`Vec<SolitonBolt>`) that **phase-locks** each traveling shot into the lattice every substep via `SolitonCarrierPulse::couple_to_lattice`. Every shot continuously injects local pressure $p$, directional face velocity $(v_x, v_y)$, and exciton luminescence $L$ along its flight path.
-2. **Where Pilot-Wave ($Q$) Mechanics Enters:**
-   - Bohmian *active information* ($-\nabla Q$) does not carry point-particle bullets; it is the **navigation layer**. Swarm drones (`BohmianSwarmDrone`), alien craft (`BohmianSaucer`), and contested `PowerCube`s read the normalized spatial curvature of the wavefield ($Q = -\nabla^2 R / R$) to surf standing-wave valleys and weave around incoming fire without pathfinding graphs.
-3. **Emergent Wave Combat:**
+### 7.2 Why It Matters to the Engine (De Broglie Double-Solution $u = u_0 + v$)
+Drawing on Louis de Broglie's *Theory of the Double Solution* ($u = u_0 + v$) and Bohm–Hiley hydrodynamics, `dzog-core` (`ordnance.rs`, `solver.rs`) unifies wave excitation and trajectory guidance:
+1. **De Broglie Soliton Cores & Self-Channeling (`kerr_lensing` + `SolitonBolt`):**
+   - In the FDTD pressure pass (`pressure.wgsl` / `solver.rs`), high-amplitude cores ($u_0$) induce a graded-index Kerr lens $K_{\text{eff}}(p) \le K$ that slows phase velocity at the peak relative to its flanks, focusing transverse wave energy inward without violating the global CFL bound.
+   - To allow high-speed ordnance to cross a `240×150` lattice without Nyquist dispersion, `dzog_core::SolitonBolt::step_in_field` advances the singular core $u_0$ under de Broglie's *Law of Phase Harmony*: each bolt samples local Bohmian quantum force $-\nabla Q$ and medium wave speed $c(\mathbf{x})$ from the surrounding wave $v$, while `couple_carrier_to_lattice` phase-locks its $(p, v_x, v_y, L)$ envelope into the grid.
+   - Continuous beams (`CollimatedLaserBeam::fire_into_field`) propagate self-channeled wave energy along a beam waist, computing exact Fresnel reflection and transmission ($R = \frac{Z_2 - Z_1}{Z_2 + Z_1}$) at crystal facets and spawning reflected wave packets off high-impedance armor (`ObsidianAnvil`).
+2. **Where Pilot-Wave ($Q$) Mechanics Enters (Without 3rd-Derivative Grid Blowup):**
+   - Directly feeding $-\nabla Q = \nabla(\nabla^2 R / R)$ back into the staggered Yee face-velocity update introduces an explicit 3rd-order spatial derivative that amplifies high-wavenumber ($k \sim \pi / \Delta x$) reflections at rigid boundary walls. To keep the FDTD wave stencil strictly hyperbolic and energy-conserving, `velocity.wgsl` updates face velocities from $-\nabla p / \rho$ while computing $Q = -\nabla^2 R / R$ into `State.a`.
+   - Bohmian *active information* ($-\nabla Q$) then guides **soliton cores and field-coupled actors** via `reduce_body.wgsl` and `SolitonBolt::step_in_field`: swarm drones (`BohmianSwarmDrone`), alien craft (`BohmianSaucer`), guided missiles (`AirToGroundMissile`), and contested `PowerCube`s read the normalized spatial curvature to surf standing-wave valleys and weave around incoming fire without pathfinding graphs.
+3. **Emergent Wave Combat & Dynamic Structural Integrity:**
    - *Bullet Hell as Interference:* Crossing wave wakes superpose in the `State` texture into constructive peaks or destructive troughs, creating $-\nabla p$ radiation-pressure wakes and $-\nabla Q$ guidance ridges that buffet nearby ships and shards.
    - *Phase-Canceling Shields:* Triggering an `AntiphaseShieldPulse` intercepts incoming enemy bolts and injects an inverted wavefront ($\Delta \phi = \pi$) into the lattice, measuring the drop in local Hamiltonian field energy ($\Delta H = E_{\text{before}} - E_{\text{after}}$) to recharge the ship's weapon capacitor.
-   - *Topological Cleaving:* Ships and asteroids are regions of high structural cohesion $C(\mathbf{x}) \in [0, 1]$. Overpressure ($|p| > p_{\text{yield}}$) and direct bolt strikes carve directional fracture waveguides (`carve_cleavage_fissure`) and impart $\mathbf{r} \times \mathbf{J}$ recoil torque until a connected-component BFS splits the hull into tumbling fragments.
+   - *Topological Cleaving & Lattice-Derived Mortality:* Ships, ground structures, and asteroids are local grids of structural cohesion $C(\mathbf{x}) \in [0, 1]$ (`fracture.rs`). Overpressure ($|p| > p_{\text{yield}}$), laser beams, and direct bolt strikes carve directional fracture waveguides and impart $\mathbf{r} \times \mathbf{J}$ recoil torque. Rather than relying on hardcoded hitpoint tables, vessels dynamically evaluate `largest_intact_component_ratio()` (4-connected BFS over load-bearing cells $C \ge 0.25$), `structural_integrity()`, and `core_cohesion()`—automatically disabling weapons and triggering catastrophic detonation when a deep fracture severs the hull.
 
 ### 7.3 Technical Details: What Lives in the 4 GPU Textures During a Barrage
 The GPU pipeline (`dzog-wgpu`) operates over fixed-size `RGBA32Float` lattice textures (`State`, `Luminescence`, `Material`, and `Boundary`; see `readme.md` §Workspace Architecture):

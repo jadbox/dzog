@@ -16,7 +16,8 @@ fn test_gate1_gpu_cpu_numerical_agreement() {
     let material = MaterialField::homogeneous(grid, 1.0, 1.0, 0.0);
     let boundary = BoundaryMask::new(grid, OuterBoundaryRule::RigidWall);
     let dt = SolverConfig::compute_cfl_dt(&grid, &material, 0.7);
-    let config = SolverConfig::new(dt, 0.7, 1);
+    let nl = NonlinearLaw::new(0.12, 1.0, 0.04).with_de_broglie_guidance(0.24, 0.018);
+    let config = SolverConfig::new(dt, 0.7, 1).with_nonlinearity(nl);
 
     // Inject a smooth Gaussian impulse at center
     let impulse = GaussianImpulse::new(16.0, 16.0, 2.5, 1.0);
@@ -115,7 +116,8 @@ fn test_periodic_wrap_agreement_and_zero_readback_body_reduction() {
     let material = MaterialField::homogeneous(grid, 1.0, 1.0, 0.01);
     let boundary = BoundaryMask::new(grid, OuterBoundaryRule::Periodic);
     let dt = SolverConfig::compute_cfl_dt(&grid, &material, 0.7);
-    let config = SolverConfig::new(dt, 0.7, 1);
+    let nl = NonlinearLaw::new(0.12, 1.0, 0.04).with_de_broglie_guidance(0.24, 0.018);
+    let config = SolverConfig::new(dt, 0.7, 1).with_nonlinearity(nl);
 
     // Inject a Gaussian impulse right on the periodic East/North seam (30.5, 30.5)
     let impulse = GaussianImpulse::new(30.5, 30.5, 2.2, 2.0);

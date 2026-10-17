@@ -10,35 +10,7 @@
 //! - **Dual-Layer Ground & Sky Ecology**: Destructible `GeodesicFuelDome`s, `BiodomeReactor`s,
 //!   `FlakTurret`s, and `CanalPatrolBoat`s couple to waveguide pipelines and water canals.
 
-use dzog_core::{Checkpoint, CohesiveBody, MineralClass};
-
-/// Ordnance classification for field-coupled projectiles.
-#[derive(Debug, Clone, Copy, PartialEq, Eq)]
-pub enum ProjectileKind {
-    /// High-velocity kinetic-soliton bullet that imparts strong linear & angular recoil (`r x J`)
-    /// and progressive fractures to airborne hulls and asteroids.
-    KineticBullet,
-    /// Alt-fire Air-to-Ground finned missile (`ss_345bbfc`) that flies beneath sky squadrons and
-    /// locks onto ground structures (`GeodesicFuelDome`, `BiodomeReactor`, `FlakTurret`, `CanalPatrolBoat`),
-    /// delivering a seismic shockwave and pipeline chain-detonation.
-    AirToGroundMissile,
-    /// Enemy plasma-soliton orb.
-    EnemyOrb,
-}
-
-/// Coherent projectile coupled to the wavefield.
-#[derive(Debug, Clone, PartialEq)]
-pub struct SolitonBolt {
-    pub x: f32,
-    pub y: f32,
-    pub vx: f32,
-    pub vy: f32,
-    pub radius: f32,
-    pub ttl: u16,
-    pub from_player: bool,
-    pub overcharged: bool,
-    pub kind: ProjectileKind,
-}
+pub use dzog_core::{Checkpoint, CohesiveBody, MineralClass, ProjectileKind, SolitonBolt};
 
 /// Airborne antagonist archetype coupled to the PDE field.
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]

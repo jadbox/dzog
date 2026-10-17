@@ -242,4 +242,22 @@ fn test_thruster_backblast_and_field_brake_and_modes() {
         peak_break > 0.45,
         "Asteroid cleave/shatter must produce a loud cavitation explosion (got {peak_break})"
     );
+
+    let mut long_ast = AsteroidsFieldGame::new(220, 140);
+    long_ast.autopilot_enabled = true;
+    for _ in 0..400 {
+        long_ast.step();
+        let max_p = long_ast
+            .solver
+            .state
+            .pressure
+            .iter()
+            .map(|p| p.abs())
+            .fold(0.0f32, f32::max);
+        assert!(
+            max_p.is_finite() && max_p < 8.0 && long_ast.field_energy.total < 2000.0,
+            "Asteroids field must remain bounded without runaway wave instability (max_p={max_p}, E={})",
+            long_ast.field_energy.total
+        );
+    }
 }

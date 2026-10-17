@@ -13,7 +13,11 @@ struct SimParams {
     beta: f32,
     alpha: f32,
     threshold_decay: f32,
-    _pad: f32,
+    kerr_lensing: f32,
+    bohmian_guidance: f32,
+    _pad0: f32,
+    _pad1: f32,
+    _pad2: f32,
 }
 
 @group(0) @binding(0) var<uniform> params: SimParams;
@@ -48,7 +52,8 @@ fn main(@builtin(global_invocation_id) global_id: vec3<u32>) {
         vx_new = wall_e_vx;
     } else if (x + 1u < params.width) {
         let coord_r = vec2<i32>(i32(x + 1u), i32(y));
-        let p_right = textureLoad(state_in, coord_r, 0).r;
+        let state_r = textureLoad(state_in, coord_r, 0);
+        let p_right = state_r.r;
         let mat_r = textureLoad(material, coord_r, 0);
 
         let grad_p_x = (p_right - p_center) * params.inv_dx;
@@ -62,7 +67,8 @@ fn main(@builtin(global_invocation_id) global_id: vec3<u32>) {
         // Outer east border
         if (params.outer_rule == 2u) {
             let coord_wrap = vec2<i32>(0, i32(y));
-            let p_wrap = textureLoad(state_in, coord_wrap, 0).r;
+            let state_wrap = textureLoad(state_in, coord_wrap, 0);
+            let p_wrap = state_wrap.r;
             let mat_wrap = textureLoad(material, coord_wrap, 0);
             let grad_p_x = (p_wrap - p_center) * params.inv_dx;
             let rho_face = 0.5 * (cur_mat.r + mat_wrap.r);
@@ -83,7 +89,8 @@ fn main(@builtin(global_invocation_id) global_id: vec3<u32>) {
         vy_new = wall_n_vy;
     } else if (y + 1u < params.height) {
         let coord_t = vec2<i32>(i32(x), i32(y + 1u));
-        let p_top = textureLoad(state_in, coord_t, 0).r;
+        let state_t = textureLoad(state_in, coord_t, 0);
+        let p_top = state_t.r;
         let mat_t = textureLoad(material, coord_t, 0);
 
         let grad_p_y = (p_top - p_center) * params.inv_dy;
@@ -97,7 +104,8 @@ fn main(@builtin(global_invocation_id) global_id: vec3<u32>) {
         // Outer north border
         if (params.outer_rule == 2u) {
             let coord_wrap = vec2<i32>(i32(x), 0);
-            let p_wrap = textureLoad(state_in, coord_wrap, 0).r;
+            let state_wrap = textureLoad(state_in, coord_wrap, 0);
+            let p_wrap = state_wrap.r;
             let mat_wrap = textureLoad(material, coord_wrap, 0);
             let grad_p_y = (p_wrap - p_center) * params.inv_dy;
             let rho_face = 0.5 * (cur_mat.r + mat_wrap.r);

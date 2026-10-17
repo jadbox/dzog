@@ -13,7 +13,11 @@ struct SimParams {
     beta: f32,
     alpha: f32,
     threshold_decay: f32,
-    _pad: f32,
+    kerr_lensing: f32,
+    bohmian_guidance: f32,
+    _pad0: f32,
+    _pad1: f32,
+    _pad2: f32,
 }
 
 @group(0) @binding(0) var<uniform> params: SimParams;
@@ -70,9 +74,16 @@ fn main(@builtin(global_invocation_id) global_id: vec3<u32>) {
     let gamma = cur_mat.b;
     let decay = exp(-gamma * params.dt);
 
-    let p_linear = decay * cur_state.r - (k * params.dt) * div_v;
-
     let is_solid_or_wall = cur_mat.a > 0.0 || cur_bound.r > 0.5 || cur_bound.b > 0.5;
+    let p_old = cur_state.r;
+    var k_eff = k;
+    if (params.kerr_lensing > 0.0 && !is_solid_or_wall) {
+        let lens = (params.kerr_lensing * p_old * p_old) / (1.0 + params.alpha * p_old * p_old);
+        k_eff = k * max(0.35, 1.0 - lens);
+    }
+
+    let p_linear = decay * p_old - (k_eff * params.dt) * div_v;
+
     var p_new = p_linear;
     if (params.beta > 0.0 && !is_solid_or_wall) {
         let nl_flux = (params.beta * p_linear) / (1.0 + params.alpha * p_linear * p_linear) - params.threshold_decay * p_linear;

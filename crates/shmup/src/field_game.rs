@@ -109,6 +109,8 @@ impl ShmupFieldGame {
             beta: 0.08,
             alpha: 1.20,
             threshold_decay: 0.055,
+            kerr_lensing: 0.24,
+            bohmian_guidance: 0.018,
         };
         let config = SolverConfig::new(dt, 0.7, 4).with_nonlinearity(nonlinearity);
         let gpu_accel = GpuFieldAccelerator::new(&state, &material, &boundary, &config);

@@ -12,12 +12,15 @@
 pub mod audio;
 pub mod body;
 pub mod boundary;
+pub mod ecology;
 pub mod energy;
 pub mod excitation;
+pub mod fracture;
 pub mod gravity;
 pub mod grid;
 pub mod manifest;
 pub mod material;
+pub mod ordnance;
 pub mod probe;
 pub mod solver;
 
@@ -27,6 +30,7 @@ pub use audio::{
 };
 pub use body::{BodyMaterialSpec, CohesiveBody, MineralClass};
 pub use boundary::{BoundaryMask, OuterBoundaryRule};
+pub use ecology::resolve_body_pair_contact;
 pub use energy::FieldEnergy;
 pub use excitation::{
     AntiphaseShieldPulse, ChladniCarrierEmitter, DirectionalWavePacket, GaussianImpulse,
@@ -36,5 +40,8 @@ pub use gravity::{GravityField, GravityWell};
 pub use grid::{AcousticState, GridConfig};
 pub use manifest::{Checkpoint, FieldSpec, ProbeDef};
 pub use material::MaterialField;
+pub use ordnance::{
+    CollimatedLaserBeam, LaserStrike, OrdnanceImpact, ProjectileKind, SolitonBolt,
+};
 pub use probe::{PressureProbe, ProbeSample};
 pub use solver::{AcousticSolver, NonlinearLaw, SolverConfig};

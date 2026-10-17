@@ -17,7 +17,11 @@ struct SimParams {
     beta: f32,
     alpha: f32,
     threshold_decay: f32,
-    _pad: f32,
+    kerr_lensing: f32,
+    bohmian_guidance: f32,
+    _pad0: f32,
+    _pad1: f32,
+    _pad2: f32,
 }
 
 struct GpuBodyQuery {

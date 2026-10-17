@@ -299,16 +299,16 @@ pub fn stamp_canyon_into_lattice(
                     // Fast-phonon Piezo conduit that guides shockwaves between base structures
                     material.density[idx] = 0.74;
                     material.bulk_modulus[idx] = 1.82;
-                    material.damping[idx] = (0.004f32).max(horizon_sponge);
-                    material.cohesion[idx] = 0.75;
-                    material.yield_pressure[idx] = 3.5;
+                    material.damping[idx] = (0.014f32).max(horizon_sponge);
+                    material.cohesion[idx] = 0.0;
+                    material.yield_pressure[idx] = 10.0;
                 }
                 GroundCellKind::IndustrialPlatform => {
                     material.density[idx] = 1.28;
                     material.bulk_modulus[idx] = 1.42;
                     material.damping[idx] = (0.015f32).max(horizon_sponge);
-                    material.cohesion[idx] = 0.35;
-                    material.yield_pressure[idx] = 6.0;
+                    material.cohesion[idx] = 0.0;
+                    material.yield_pressure[idx] = 10.0;
                 }
                 GroundCellKind::TerraBasalt => {
                     material.density[idx] = 1.0;

@@ -19,7 +19,11 @@ pub struct GpuSimParams {
     pub beta: f32,
     pub alpha: f32,
     pub threshold_decay: f32,
-    pub _pad: f32,
+    pub kerr_lensing: f32,
+    pub bohmian_guidance: f32,
+    pub _pad0: f32,
+    pub _pad1: f32,
+    pub _pad2: f32,
 }
 
 #[repr(C)]
@@ -132,7 +136,11 @@ impl GpuSimulation {
             beta: config.nonlinearity.beta,
             alpha: config.nonlinearity.alpha,
             threshold_decay: config.nonlinearity.threshold_decay,
-            _pad: 0.0,
+            kerr_lensing: config.nonlinearity.kerr_lensing,
+            bohmian_guidance: config.nonlinearity.bohmian_guidance,
+            _pad0: 0.0,
+            _pad1: 0.0,
+            _pad2: 0.0,
         };
 
         let params_buffer = ctx.device.create_buffer(&BufferDescriptor {
@@ -608,6 +616,7 @@ impl GpuSimulation {
     pub fn upload_state(&self, ctx: &GpuContext, state: &AcousticState) {
         let count = state.config.cell_count();
         let has_lum = state.luminescence.len() == count;
+        let has_q = state.bohmian_q.len() == count;
         let mut buffer = self.scratch_upload_a.lock().unwrap();
         let mut lum_buf = self.scratch_upload_b.lock().unwrap();
         if buffer.len() != count * 4 {
@@ -621,7 +630,7 @@ impl GpuSimulation {
             buffer[base] = state.pressure[i];
             buffer[base + 1] = state.vx[i];
             buffer[base + 2] = state.vy[i];
-            buffer[base + 3] = 0.0f32;
+            buffer[base + 3] = if has_q { state.bohmian_q[i] } else { 0.0f32 };
 
             lum_buf[base] = if has_lum { state.luminescence[i] } else { 0.0f32 };
         }
@@ -994,6 +1003,9 @@ impl GpuSimulation {
         if state.luminescence.len() != count {
             state.luminescence.resize(count, 0.0);
         }
+        if state.bohmian_q.len() != count {
+            state.bohmian_q.resize(count, 0.0);
+        }
 
         {
             let view = slice.get_mapped_range().unwrap();
@@ -1014,6 +1026,7 @@ impl GpuSimulation {
                     state.pressure[idx] = floats[f_idx];
                     state.vx[idx] = floats[f_idx + 1];
                     state.vy[idx] = floats[f_idx + 2];
+                    state.bohmian_q[idx] = floats[f_idx + 3];
                     state.luminescence[idx] = lum_floats[f_idx];
                 }
             }
@@ -1103,6 +1116,9 @@ impl GpuSimulation {
         if state.luminescence.len() != count {
             state.luminescence.resize(count, 0.0);
         }
+        if state.bohmian_q.len() != count {
+            state.bohmian_q.resize(count, 0.0);
+        }
 
         {
             let view = slice.get_mapped_range().unwrap();
@@ -1123,6 +1139,7 @@ impl GpuSimulation {
                     state.pressure[idx] = floats[f_idx];
                     state.vx[idx] = floats[f_idx + 1];
                     state.vy[idx] = floats[f_idx + 2];
+                    state.bohmian_q[idx] = floats[f_idx + 3];
                     state.luminescence[idx] = lum_floats[f_idx];
                 }
             }

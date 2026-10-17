@@ -11,7 +11,7 @@
 
 use std::f32::consts::FRAC_PI_2;
 use dzog_core::{
-    AntiphaseShieldPulse, DirectionalWavePacket, GaussianImpulse, SolitonCarrierPulse,
+    resolve_body_pair_contact, AntiphaseShieldPulse, DirectionalWavePacket, GaussianImpulse,
 };
 
 use crate::canyon::canyon_wall_bounds;
@@ -319,39 +319,24 @@ impl ShmupFieldGame {
         let mut ground_hits: Vec<(usize, f32, f32, f32, f32, bool, ProjectileKind)> = Vec::new();
         let mut player_hit_x: Option<f32> = None;
 
+        let homing_targets: Vec<(f32, f32)> = self
+            .ground_targets
+            .iter()
+            .map(|g| (g.hull.x, g.hull.y))
+            .collect();
+
         for mut bolt in old_bolts {
-            if bolt.ttl == 0 {
+            if !bolt.step_in_field(
+                &mut self.solver.state,
+                &self.solver.material,
+                dt_sub,
+                false,
+                self.wave_force_enabled,
+                &homing_targets,
+            ) {
                 continue;
             }
-
-            // Air-to-Ground Missiles home decisively toward the nearest ahead ground target
-            if bolt.kind == ProjectileKind::AirToGroundMissile {
-                if let Some(gt) = self
-                    .ground_targets
-                    .iter()
-                    .filter(|g| g.hull.y > 8.0 && g.hull.y < bolt.y + 16.0)
-                    .min_by(|a, b| {
-                        let da = (a.hull.x - bolt.x).powi(2) + (a.hull.y - bolt.y).powi(2);
-                        let db = (b.hull.x - bolt.x).powi(2) + (b.hull.y - bolt.y).powi(2);
-                        da.partial_cmp(&db).unwrap_or(std::cmp::Ordering::Equal)
-                    })
-                {
-                    let dx = gt.hull.x - bolt.x;
-                    let dy = (gt.hull.y - bolt.y).min(-2.0);
-                    let dist = (dx * dx + dy * dy).sqrt().max(1.0);
-                    let desired_vx = (dx / dist) * 1.45;
-                    bolt.vx = (bolt.vx * 0.86 + desired_vx * 0.14).clamp(-1.25, 1.25);
-                }
-            }
-
-            bolt.x += bolt.vx * dt_sub;
-            bolt.y += bolt.vy * dt_sub;
-
-            if bolt.x < 3.0
-                || bolt.x >= self.width as f32 - 3.0
-                || bolt.y < 2.0
-                || bolt.y >= self.height as f32 - 2.0
-            {
+            if bolt.x < 3.0 || bolt.x >= self.width as f32 - 3.0 {
                 continue;
             }
 
@@ -448,9 +433,12 @@ impl ShmupFieldGame {
             }
 
             if !consumed {
-                if self.wave_force_enabled && bolt.overcharged {
-                    SolitonCarrierPulse::new(bolt.x, bolt.y, bolt.vx, bolt.vy, 1.25, 0.55, 0.35)
-                        .couple_to_lattice(&mut self.solver.state, &self.solver.material, false);
+                if self.wave_force_enabled {
+                    bolt.couple_carrier_to_lattice(
+                        &mut self.solver.state,
+                        &self.solver.material,
+                        false,
+                    );
                 }
                 kept_bolts.push(bolt);
             }
@@ -690,55 +678,20 @@ impl ShmupFieldGame {
         let n_aliens = self.aliens.len();
         for i in 0..n_aliens {
             for j in (i + 1)..n_aliens {
-                let ax = self.aliens[i].hull.x;
-                let ay = self.aliens[i].hull.y;
-                let bx = self.aliens[j].hull.x;
-                let by = self.aliens[j].hull.y;
-                let min_d = (self.aliens[i].hull.radius + self.aliens[j].hull.radius) * 0.98;
-                let dx = bx - ax;
-                let dy = by - ay;
-                let d2 = dx * dx + dy * dy;
-                if d2 < min_d * min_d && d2 > 0.001 {
-                    let d = d2.sqrt();
-                    let nx = dx / d;
-                    let ny = dy / d;
-                    let overlap = min_d - d;
-
-                    // Separate hulls so enemies never overlap
-                    self.aliens[i].hull.x -= nx * overlap * 0.55;
-                    self.aliens[i].hull.y -= ny * overlap * 0.55;
-                    self.aliens[j].hull.x += nx * overlap * 0.55;
-                    self.aliens[j].hull.y += ny * overlap * 0.55;
-
-                    let rvx = self.aliens[j].hull.vx - self.aliens[i].hull.vx;
-                    let rvy = self.aliens[j].hull.vy - self.aliens[i].hull.vy;
-                    let closing = -(rvx * nx + rvy * ny);
-                    let bump = (closing.max(0.12) * 1.65).min(2.4);
-                    let cx = 0.5 * (ax + bx);
-                    let cy = 0.5 * (ay + by);
-
-                    self.aliens[i]
-                        .hull
-                        .apply_contact_impulse(cx, cy, -nx * bump, -ny * bump, None);
-                    self.aliens[j]
-                        .hull
-                        .apply_contact_impulse(cx, cy, nx * bump, ny * bump, None);
-
+                let (left, right) = self.aliens.split_at_mut(j);
+                if let Some((cx, cy, closing)) = resolve_body_pair_contact(
+                    &mut left[i].hull,
+                    &mut right[0].hull,
+                    &mut self.solver.state,
+                    None,
+                    0.98,
+                    Some(0.28),
+                    self.wave_force_enabled,
+                ) {
                     if closing > 0.28 {
-                        // High-speed knockback collision cracks both hulls & sparks the field!
-                        self.aliens[i]
-                            .hull
-                            .inflict_progressive_fracture(cx, cy, -nx, -ny, 1.15, None);
-                        self.aliens[j]
-                            .hull
-                            .inflict_progressive_fracture(cx, cy, nx, ny, 1.15, None);
-                        self.aliens[i].fracture_hits =
-                            self.aliens[i].fracture_hits.saturating_add(1);
-                        self.aliens[j].fracture_hits =
-                            self.aliens[j].fracture_hits.saturating_add(1);
+                        left[i].fracture_hits = left[i].fracture_hits.saturating_add(1);
+                        right[0].fracture_hits = right[0].fracture_hits.saturating_add(1);
                         self.inject_fiery_field_explosion(cx, cy, 2.0, 1.6);
-                    } else if self.wave_force_enabled && cy >= 2.0 && cy < self.height as f32 - 2.0 {
-                        GaussianImpulse::new(cx, cy, 1.4, 0.75).inject(&mut self.solver.state);
                     }
                 }
             }

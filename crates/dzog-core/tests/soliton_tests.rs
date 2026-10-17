@@ -15,7 +15,7 @@ fn test_soliton_cohesion_vs_linear_dispersion() {
     let mut solver_linear = AcousticSolver::new(state_linear, material.clone(), boundary.clone(), config_linear).unwrap();
 
     // Case 2: Nonlinear solitary field (beta = 0.8, alpha = 0.5)
-    let nl = NonlinearLaw { beta: 0.8, alpha: 0.5, threshold_decay: 0.05 };
+    let nl = NonlinearLaw::new(0.8, 0.5, 0.05);
     let config_soliton = SolverConfig::new(dt, 0.7, 1).with_nonlinearity(nl);
     let mut state_soliton = AcousticState::new(grid);
     let mut packet2 = DirectionalWavePacket::new(15.0, 10.0, 2.5, 1.5, 0.0);
@@ -48,7 +48,7 @@ fn test_soliton_wall_reflection_rebound() {
     let boundary = BoundaryMask::new(grid, OuterBoundaryRule::RigidWall);
     let dt = SolverConfig::compute_cfl_dt(&grid, &material, 0.7);
 
-    let nl = NonlinearLaw { beta: 0.6, alpha: 0.4, threshold_decay: 0.02 };
+    let nl = NonlinearLaw::new(0.6, 0.4, 0.02);
     let config = SolverConfig::new(dt, 0.7, 1).with_nonlinearity(nl);
     let mut state = AcousticState::new(grid);
 
@@ -139,3 +139,72 @@ fn test_cohesion_erosion_under_acoustic_overpressure() {
         "Overpressure exceeding yield threshold must erode material cohesion (got {eroded_cohesion})"
     );
 }
+
+#[test]
+fn test_de_broglie_kerr_lensing_and_collimated_laser_fresnel_reflection() {
+    let grid = GridConfig::new(64, 32, 1.0, 1.0);
+    let mut state = AcousticState::new(grid);
+    let mut material = MaterialField::homogeneous(grid, 1.0, 1.0, 0.01);
+    let boundary = BoundaryMask::new(grid, OuterBoundaryRule::AbsorbingSponge);
+    let dt = SolverConfig::compute_cfl_dt(&grid, &material, 0.7);
+
+    // 1. Configure solver with de Broglie Kerr self-channeling (`kerr_lensing = 0.28`)
+    //    and Bohm-Hiley internal velocity guidance (`bohmian_guidance = 0.02`)
+    let nl = NonlinearLaw::new(0.45, 0.8, 0.03).with_de_broglie_guidance(0.28, 0.02);
+    let config = SolverConfig::new(dt, 0.7, 1).with_nonlinearity(nl);
+    let mut solver = AcousticSolver::new(state.clone(), material.clone(), boundary, config).unwrap();
+
+    // Inject directional soliton and step 25 times; verify finite stability and stored bohmian_q
+    let mut pkt = DirectionalWavePacket::new(14.0, 16.0, 2.0, 1.8, 0.0);
+    pkt.inject(&mut solver.state, &solver.material);
+    for _ in 0..25 {
+        solver.step();
+    }
+    assert!(solver.state.validate().is_ok());
+    let max_q = solver
+        .state
+        .bohmian_q
+        .iter()
+        .copied()
+        .map(f32::abs)
+        .fold(0.0f32, f32::max);
+    assert!(
+        max_q > 0.05,
+        "Solver Pass 1 must continuously evaluate and store Bohmian Q in state.bohmian_q (got {max_q})"
+    );
+
+    // 2. Mini Sandbox: Collimated Laser Beam Fresnel Reflection & Crystal Fracture
+    let mut bodies = vec![
+        CohesiveBody::new_asteroid(1, 32.0, 16.0, 5.5, 6, 42, MineralClass::ObsidianAnvil),
+        CohesiveBody::new_asteroid(2, 48.0, 16.0, 5.5, 6, 42, MineralClass::PiezoQuartz),
+    ];
+    let coh_before = bodies[0].mean_cohesion();
+
+    // Fire laser along +X at the ObsidianAnvil asteroid at (32, 16)
+    let laser_obs = CollimatedLaserBeam::new(10.0, 16.0, 0.0, 40.0, 1.2, 2.0);
+    let strike_obs = laser_obs.fire_into_field(&mut state, &mut material, &mut bodies, false);
+    assert_eq!(strike_obs.body_index, Some(0), "Laser must strike the ObsidianAnvil asteroid");
+    assert!(
+        strike_obs.reflection_coeff > 0.30,
+        "High-impedance ObsidianAnvil (Z=2.02) must produce strong Fresnel reflection (got R={})",
+        strike_obs.reflection_coeff
+    );
+    assert!(
+        bodies[0].mean_cohesion() < coh_before,
+        "Collimated laser strike must erode target crystal cohesion at the focal spot"
+    );
+    assert!(
+        bodies[0].vx > 0.0,
+        "Collimated laser radiation pressure must push struck asteroid along beam axis (+X)"
+    );
+
+    // Fire laser directly at the PiezoQuartz asteroid at (48, 16) and verify lower Fresnel reflection
+    let laser_qtz = CollimatedLaserBeam::new(40.0, 16.0, 0.0, 20.0, 1.2, 2.0);
+    let strike_qtz = laser_qtz.fire_into_field(&mut state, &mut material, &mut bodies, false);
+    assert_eq!(strike_qtz.body_index, Some(1));
+    assert!(
+        strike_obs.reflection_coeff > strike_qtz.reflection_coeff,
+        "ObsidianAnvil must reflect a larger fraction of laser energy than lower-impedance PiezoQuartz"
+    );
+}
+

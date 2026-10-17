@@ -72,6 +72,10 @@ pub struct AcousticState {
     /// Bohmian curvature |Q|, and piezoelectric crystal stress. Size: width * height.
     #[serde(default)]
     pub luminescence: Vec<f32>,
+    /// Center Bohm-Hiley Quantum Potential Q(x, y) = -(Laplacian R) / R evaluated at each substep
+    /// (mirrors GPU `State.a` channel). Size: width * height.
+    #[serde(default)]
+    pub bohmian_q: Vec<f32>,
 }
 
 impl AcousticState {
@@ -84,6 +88,7 @@ impl AcousticState {
             vx: vec![0.0; count],
             vy: vec![0.0; count],
             luminescence: vec![0.0; count],
+            bohmian_q: vec![0.0; count],
         }
     }
 
@@ -93,6 +98,7 @@ impl AcousticState {
         self.vx.fill(0.0);
         self.vy.fill(0.0);
         self.luminescence.fill(0.0);
+        self.bohmian_q.fill(0.0);
     }
 
     /// Validate that all values are finite.
