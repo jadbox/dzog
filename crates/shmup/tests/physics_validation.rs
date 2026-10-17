@@ -321,10 +321,10 @@ fn test_progressive_enemy_fracturing_and_ground_waveguide_chain_detonation() {
         "Critically broken enemy ship must never fire projectiles"
     );
 
-    // 6. Check long-run stability over 600 frames
+    // 6. Check long-run stability over 1200 frames
     let mut long_game = ShmupFieldGame::new(240, 135);
     long_game.autopilot_enabled = true;
-    for _ in 0..600 {
+    for step_i in 0..1200 {
         long_game.step();
         let max_p = long_game
             .solver
@@ -334,6 +334,24 @@ fn test_progressive_enemy_fracturing_and_ground_waveguide_chain_detonation() {
             .map(|p| p.abs())
             .fold(0.0f32, f32::max);
         let sum_l: f32 = long_game.solver.state.luminescence.iter().sum();
+        if sum_l > 200.0 || max_p > 3.0 {
+            let mut max_l = 0.0f32;
+            let mut l_coord = (0, 0);
+            for y in 0..135 {
+                for x in 0..240 {
+                    let l = long_game.solver.state.luminescence[y * 240 + x];
+                    if l > max_l {
+                        max_l = l;
+                        l_coord = (x, y);
+                    }
+                }
+            }
+            let idx = l_coord.1 * 240 + l_coord.0;
+            eprintln!("step {}: max_p={:.3}, max_l={:.3} at {:?} (p={:.3}, rho={:.2}, K={:.2}, coh={:.2}), sum_l={:.1}, E={:.1}",
+                step_i, max_p, max_l, l_coord, long_game.solver.state.pressure[idx],
+                long_game.solver.material.density[idx], long_game.solver.material.bulk_modulus[idx],
+                long_game.solver.material.cohesion[idx], sum_l, long_game.field_energy.total);
+        }
         assert!(
             max_p.is_finite() && max_p < 8.0 && sum_l < 1500.0 && long_game.field_energy.total < 2000.0,
             "Shmup field must remain bounded without runaway wave or fire-ribbon escalation (max_p={max_p}, sum_l={sum_l}, E={})",
