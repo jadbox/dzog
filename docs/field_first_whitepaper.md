@@ -6,7 +6,7 @@
 
 ## 1. The Architectural Problem & Intellectual Lineage
 
-### 1.1 Overview for Computer Scientists: Beyond Object Isolation
+### 1.1 Generalized Overview: Beyond Object Isolation
 To a software engineer, the standard architecture of an interactive simulation is second nature: a scene is a list of structs (e.g., `struct Asteroid { pos: Vec2, hp: 3 }`) updated in a loop. Space is merely a coordinate system—a void with no state, memory, or tension.
 
 While efficient for sparse rigid bodies, this object-centric model creates three systemic bottlenecks when building rich, emergent worlds:
