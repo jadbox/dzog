@@ -66,7 +66,7 @@ By grounding computation in continuous field response rather than object atomism
 
 ## Part 2: Overview Article
 
-# The Medium Is the Matter: The Relational Ontology of the Dzog Engine
+# The Relational Medium Ontology of the Dzog Engine
 
 Modern software engineering and modern materialism share an unexamined metaphysical inheritance: **atomism**. 
 
