@@ -1,159 +1,102 @@
 # The Ontology of Field-First Computing
-### Philosophical and Physical Foundations of the Dzog Engine [github.com/jadbox/dzog](https://github.com/jadbox/dzog)
+### Philosophical and Physical Foundations of the Dzog Engine
 
-**Author:** Jonathan Dunlap ([LinkedIn](https://www.linkedin.com/in/jonathandunlap))
+**Author:** Jonathan Dunlap ([LinkedIn](https://www.linkedin.com/in/jonathandunlap) · [GitHub](https://github.com/jadbox))  
+*Dzog Project Repository:* [github.com/jadbox/dzog](https://github.com/jadbox/dzog)
 
 ---
 
-## Executive Overview: The Living Proposal
+## Overview: The Living Medium
 
-Dzog is an architecture and programming medium grounded in **relation-first computing** over a continuous physical field. Rather than assembling isolated data structures and imperative scripts inside an empty Cartesian coordinate container, authors compose a **living ecology of actors** governed by wave mechanics, nonlinear self-cohesion, and quantum-inspired geometric guidance laws.
+Dzog is an architecture and programming medium grounded in relation-first computing over a continuous physical field. Authors compose a living ecology of actors governed by wave mechanics, nonlinear self-cohesion, and geometric guidance laws. 
 
-In conventional simulation and game architectures, entities are sealed state containers sitting in a dead void. They interact only when an explicit collision check or event bus schedules an imperative callback; between these discrete ticks, space is inert. 
+Conventional simulations model the world by placing sealed data structures inside an empty coordinate grid. In those systems, objects sit in an inert void and interact only when an external schedule detects a collision. Between those discrete checks, the space between things remains silent and empty.
 
-In Dzog, **the medium itself computes the world**. Every actor—whether a self-focusing solitary wave packet (soliton), a semi-permeable membrane, an autonomous swarm, or a crystalline hull—is coupled directly to a continuous, responsive lattice. Entities possess **radiative presence**: their motion continuously performs work on the medium, shedding Doppler-shifted pressure wakes and sensing returning echoes. They reorganize one another through interference gradients, fracture along continuous stress planes, and navigate complex environments without centralized pathfinding.
+In the Dzog engine, the spatial medium itself computes the world. Every actor, whether a solitary wave packet, a semi-permeable membrane, an autonomous swarm, or a crystalline vessel, is coupled directly to a continuous and responsive lattice. Moving entities possess radiative presence. Their motion performs continuous mechanical work on the surrounding medium, shedding Doppler-shifted pressure wakes and receiving returning echoes from distant boundaries. Actors reorganize one another through interference gradients, cleave along continuous planes of internal stress, and navigate complex environments by reading the geometry of the field.
 
-We do not abolish symbols or discrete boundaries; we simply refuse to make symbolic isolation our metaphysical starting point.
+Symbolic handles remain useful tools for inspection and composition, while the foundation of the world rests in continuous relationship. Grounding computation in field response unifies authoring, playing, and analysis into one experimental rhythm:
 
 ```text
 [ Encounter ] -> [ Perturb ] -> [ Compare ] -> [ Commit ] -> [ Compose ]
 ```
 
-By grounding computation in continuous field response rather than object atomism, the engine unifies authoring, playing, and analysis into a single experimental cycle:
-1. **Encounter** an ongoing ecological situation directly through sight, sound, and motion.
-2. **Perturb** it by introducing energy, moving a boundary, or altering material impedance.
-3. **Compare** counterfactual branches by snapshotting the field state, toggling a coupling, and observing how trajectories diverge.
-4. **Commit** relationships through explicit physical yield thresholds and boundary invariants.
-5. **Compose** field fragments into broader landscapes while observing how their boundary impedances naturally resonate.
+A participant first encounters an ongoing ecological situation directly through sight, sound, and motion. They perturb the medium by introducing energy, moving a boundary, or altering material impedance. They compare counterfactual possibilities by saving the state of the field, adjusting a physical coupling, and observing how the resulting trajectories diverge. From this understanding, they commit relationships through explicit yield thresholds and boundary invariants, and finally compose these localized patterns into broader landscapes whose boundaries naturally resonate with one another.
 
 ---
 
-## Part 1: Core Philosophical & Ontological Insights
+## Core Ontological Insights
 
-### 1. The Primacy of the Ground (Field Monism vs. Object Atomism)
-* **Conventional Paradigm:** Cartesian dualism and object atomism. Space is treated as an empty coordinate void populated by disconnected, self-subsistent data structures (`struct Entity { pos, hp }`). Space has no memory, tension, or impedance; things simply happen *in* it.
-* **The Dzog Insight:** The continuous spatial medium—the **Ground** (*Gzhi*)—is the primary ontological reality. There is no empty space. Every point in the lattice possesses physical presence (pressure, flux, impedance, cohesion). Space itself computes the world; what we perceive as "entities" are not separate occupants of space, but localized, dynamic configurations *of* space.
+The architecture of the engine rests upon eight foundational shifts in how we understand space, matter, and perception:
 
-### 2. Entities as Persistent Processes (De Broglie Soliton Monism)
-* **Conventional Paradigm:** Substance ontology. An object is a static, self-enclosed noun that persists by default until an external command explicitly mutates or deletes it.
-* **The Dzog Insight:** Process ontology (Whitehead, de Broglie). In an ordinary wave medium, linear ripples disperse and flatten over time. To exist as an identifiable "thing," an entity must actively balance dispersion through nonlinear self-focusing. Following Louis de Broglie’s **Theory of the Double Solution**, matter is a **soliton**: an intense, self-cohering concentration of energy locked in phase harmony with the surrounding field. An entity is not an immutable noun; it is an ongoing, self-maintaining verb.
-
-### 3. Guidance by Geometric Form, Not Brute Force (Bohm–Hiley Active Information)
-* **Conventional Paradigm:** Mechanistic push-pull forces and decoupled heuristic pathfinding (A*, navmeshes, raycasts).
-* **The Dzog Insight:** David Bohm and Basil Hiley demonstrated that a wavefield organizes matter not merely through energetic impact, but through **Active Information** carried by the **Quantum Potential** ($Q$). Because $Q$ measures the normalized *spatial curvature* of the wave envelope rather than its raw amplitude, a faint standing wave exerts clear, scale-invariant geometric guidance. Autonomous craft navigate complex corridors and flow naturally around obstacles by reading the local geometry of the medium, eliminating synthetic pathfinding scripts.
-
-### 4. Radiative Presence in Heterogeneous Milieus
-* **Conventional Paradigm:** Inert presence. Objects are silent coordinates until an intersection algorithm fires. An empty room and an occupied room have the same spatial physics.
-* **The Dzog Insight:** In a relational medium, existence is communicative. Any moving boundary continuously performs mechanical work on the medium, shedding wakes and setting up standing waves. Furthermore, space is not a uniform vacuum: it is differentiated into diverse milieus. Crystalline regions transmit fast, ringing high-frequency modes; dense basalt barriers reflect and channel shockwaves; viscous regions lens and attenuate motion. The identity of an actor is inseparable from the impedance of the neighborhood it inhabits.
-
-### 5. Topological Continuity vs. State Accounting (Wholeness, Cleaving & Annealing)
-* **Conventional Paradigm:** Nominalist abstraction. Durability is an arbitrary integer counter (`hp: 3`) decoupled from geometry, and destruction is a scripted asset swap.
-* **The Dzog Insight:** Integrity is topological connectivity. A solid structure is an integrated region of continuous material cohesion. Stress waves naturally focus along internal crack lines, eroding cohesion until the medium physically divides into independent fragments. Survival is evaluated from unbroken topological continuity, and repair is the organic recrystallization (annealing) of cell bonds outward from an intact core.
-
-### 6. Conservation and Phase Harmony (Antiphase Resolution)
-* **Conventional Paradigm:** Erasure and overwrite. Defenses are boolean triggers (`destroy_projectile()`) that discard energy from the system.
-* **The Dzog Insight:** Field interactions follow strict conservation laws. When an antiphase defense meets an incoming wave at an inverted phase, opposing crests and troughs resolve into stillness. The eliminated kinetic energy does not vanish into void; it is absorbed directly through the lattice into the actor's energy reserves. Conflict is resolved through phase synthesis rather than arbitrary deletion.
-
-### 7. Inseparable Display (The Situated Image & *Rolpa*)
-* **Conventional Paradigm:** Facade architecture. Gameplay logic runs on abstract numbers, while graphics and audio are superficial assets triggered after the fact.
-* **The Dzog Insight:** James Hillman’s critique of the detached *symbol* versus the *situated image*, aligned with the Dzogchen understanding of **Rolpa** (the undivided, immediate display of the Ground) and **Lhundrub** (spontaneous presence). In Dzog, light, sound, and matter share the same continuous medium. Crystal luminescence diffuses directly from mechanical lattice stress, and audio is synthesized in real time from physical pressure waves vibrating the hull. Perception is not a decorative skin; it is a direct projection of physical reality.
-
-### 8. Deterministic Epistemology (Counterfactual Branching)
-* **Conventional Paradigm:** Hidden state and leaky side-effects. Branching or rewinding interactive worlds requires complex state serialization, event replay, and error-prone reconciliation.
-* **The Dzog Insight:** Because the entire world state resides in uniform, contiguous field buffers with local update laws, the complete causal history of a situation is transparent. Authors and actors can snapshot a moment, test counterfactual interventions ("What if this frequency were inverted? What if this wall yielded?"), observe the diverging interference patterns, and commit or restore branches with zero causal desynchronization.
+1. **The Primacy of the Ground:** The continuous spatial medium, known in Dzogchen philosophy as the Ground (*Gzhi*), is the primary reality. Every point in the lattice holds pressure, flux, impedance, and cohesion, and what we call objects are localized, dynamic configurations of this single field.
+2. **Entities as Persistent Processes:** Following Louis de Broglie's nonlinear wave mechanics, an entity is an ongoing, self-maintaining process. A localized wave concentration resists dispersion through nonlinear self-focusing, allowing a soliton to travel as a coherent body while remaining unified with the surrounding medium.
+3. **Guidance by Geometric Form:** Building on the work of David Bohm and Basil Hiley, waves organize motion through Active Information carried by the Quantum Potential. Because this potential depends on the spatial curvature of a wave envelope, even a faint standing wave provides scale-invariant geometric guidance to surrounding craft.
+4. **Radiative Presence in Varied Milieus:** Existence within a relational medium is inherently communicative, as every moving boundary sheds wakes and establishes standing waves. Space is differentiated into diverse regions of crystal, basalt, and viscous fluid, meaning an actor's behavior always grows out of the impedance of its immediate neighborhood.
+5. **Topological Continuity and Annealing:** Structural wholeness is a real physical bond across adjacent cells. Mechanical stress focuses along internal fault lines until a body physically divides into independent fragments, while absorbing resonant energy allows severed crystalline structures to anneal and regrow outward from an intact core.
+6. **Conservation and Phase Harmony:** Field interactions obey strict conservation laws. When an antiphase shield meets an incoming wave at an inverted phase, the opposing crests and troughs settle into stillness, and the calmed kinetic energy flows directly into the vessel's internal reserves.
+7. **Inseparable Display:** Inspired by James Hillman's concept of the situated image and the Dzogchen view of *Rolpa*, light and sound arise directly from the physical state of the medium. Luminescence diffuses from mechanical lattice stress, and real-time audio is synthesized directly from pressure waves vibrating against a vessel's hull.
+8. **Deterministic Epistemology:** Because the complete state of the world resides in uniform, contiguous field buffers governed by local update laws, causality is fully transparent. Observers can snapshot any moment, test an alternative intervention, and observe how the modified wave patterns unfold with exact fidelity.
 
 ---
 
-## Part 2: Overview Article
+## The Undivided Medium: A Contemplative Inquiry into Field-First Computing
 
-# The Relational Medium Ontology of the Dzog Engine
+Throughout the history of modern science and software engineering, our thinking has been shaped by an unspoken commitment to atomism. When we look out at the world, we are accustomed to seeing separate things existing independently of one another. When we sit down to build a virtual world inside a computer, we naturally repeat this habit. We begin by defining an empty coordinate grid, which serves as a silent and featureless container. Into this void, we place isolated data structures representing ships, stones, and projectiles, assigning each one a private list of numerical properties. Because the space between these objects has no life or tension of its own, the objects remain strangers to one another until an external program steps in to measure the distance between them and force an interaction.
 
-Modern software engineering and modern materialism share an unexamined metaphysical inheritance: **atomism**. 
+Yet when we look closely at physical reality, or attend carefully to the nature of immediate experience, we find an unbroken wholeness. In his inquiry into quantum mechanics, David Bohm invited us to view the universe as an undivided flowing movement, which he called the holomovement. In this view, the continuous field is the primary reality. What appear to us as separate, solid objects are comparable to vortices or ripples in a flowing stream. A vortex has a clear, recognizable form and persists over time, yet it has no existence apart from the water in which it moves. Two vortices influence one another through the shared tension and flow of the entire stream.
 
-When building a virtual world, game engines almost universally assume a Cartesian coordinate system—an empty, inert void into which isolated data structures are placed. A ship, an asteroid, and a projectile exist as autonomous entities with arbitrary properties attached to them (`pos: Vec2`, `hp: 100`). Because the coordinate void between them possesses neither memory nor physical state, these entities cannot interact unless an external manager continually executes distance checks. When an interaction occurs, it is managed by imperative convention: an arbitrary integer decreases, a detached particle effect spawns, and an audio clip plays from disk.
+The Dzog engine brings this relational understanding into computational practice. By uniting the physical insights of Louis de Broglie, David Bohm, and Basil Hiley with the contemplative view of Dzogchen, the engine begins from the wholeness of the medium.
 
-The **Dzog Engine** replaces this object-centric paradigm with **field-first computing**. By unifying the physical insights of **Louis de Broglie**, **David Bohm**, and **Basil Hiley** with the non-dual relational ontology of **Dzogchen**, the engine operates on a single principle: **the continuous spatial medium is the primary reality, and all objects are persistent, dynamic configurations of that medium.**
+### I. The Primacy of the Ground
 
----
+In the contemplative tradition of Dzogchen, reality is understood through the Ground (*Gzhi*). The Ground is the primordial, continuous, and responsive basis of all experience. The diverse appearances of the world are the Ground's own dynamic energy (*Rtsal*) manifesting as immediate, luminous display (*Rolpa*). Every phenomenon arises within this continuum and remains inseparable from it, presenting itself with spontaneous presence (*Lhundrub*) prior to conceptual division.
 
-### I. The Primacy of the Ground and Spontaneous Presence
+Within the engine, this understanding takes form as a continuous physical fabric running across the processor's parallel lattice. Every region of space holds density, stiffness, damping, structural cohesion, pressure, and velocity. Space is full and responsive at every point. When a wave packet travels across the arena, or when a crystalline wall reflects an incoming pulse, causality flows naturally from each cell to its immediate neighbors. 
 
-In Dzogchen philosophy, the universe is understood through the **Ground** (*Gzhi*)—a primordial, continuous, and responsive reality. The myriad phenomena of the world are not alien objects imported into the Ground; they are the Ground's inherent dynamic energy (*Rtsal*) manifesting as immediate display (*Rolpa*), without ever separating from the continuum from which they arise. Prior to segmenting experience into isolated concepts, reality presents itself with **Lhundrub**—spontaneous, unforced presence.
+Because the medium is continuous, presence is naturally radiative. As a vessel moves through the world, its hull performs work on the surrounding lattice, sending out Doppler-shifted pressure wakes that travel across the arena, reflect off distant mineral formations, and return as informative echoes. Every actor participates in a shared conversation conducted entirely through the tension of the medium.
 
-In the Dzog engine, this ontology is implemented as an active computational lattice running directly on the GPU. Space is not a coordinate void; it is a continuous physical fabric. Every cell stores local material density, stiffness, damping, acoustic impedance, structural cohesion, pressure, and velocity. 
+### II. Wholeness and the Soliton Process
 
-There are no inert regions. The medium mediates every interaction. When a projectile travels, when an asteroid fractures, or when a shield deflects incoming fire, no central coordinator governs the exchange. Causality propagates locally from cell to immediate neighbor. Moving bodies possess continuous **radiative presence**: as an actor navigates the world, its boundaries do physical work on the medium, shedding Doppler-shifted pressure wakes that bounce off distant obstacles and return as informative echoes. The world is self-coordinating because it is fundamentally undivided.
+When we observe a ripple on a pond, we see that it gradually spreads outward and flattens until it disappears into the calm water. If the universe is a continuous wave medium, a natural question arises: how can stable, localized things exist at all? Why do projectiles and vessels maintain their boundaries as they travel?
 
----
+Louis de Broglie devoted the later decades of his life to this question in his work on nonlinear wave mechanics and the Theory of the Double Solution. He proposed that a particle is a localized, self-focusing concentration of wave energy known as a soliton. In a nonlinear medium, when wave energy reaches a critical intensity, it alters the local properties of the fabric around it, drawing the wave inward at the exact rate that natural dispersion tries to spread it outward. This balance produces a stable, compact core of energy that travels as a coherent whole while remaining smoothly woven into a broader guiding wave around it.
 
-### II. Entities as Persistent Processes: De Broglie’s Double Solution
+In the Dzog engine, every projectile and moving actor exists as this kind of ongoing process. A plasma bolt is a self-focusing wave packet punched directly into the lattice. Its own internal intensity holds it together across the screen, while its outer wake blends with the surrounding field. An entity persists through a continuous, lawful activity of self-cohesion within the whole.
 
-In a classical wave equation, energy disperses. Drop a pebble into water, and the ripple inevitably flattens and fades. For a field-first simulation, this presents an immediate problem: if a projectile or a ship is simply a wave in the grid, why does it not dissolve into a faint wash of background noise?
+### III. Active Information and the Geometry of Guidance
 
-The French physicist **Louis de Broglie** addressed this exact question in his 1956 work, *Nonlinear Wave Mechanics: A Causal Interpretation*. De Broglie rejected the dualism of point particles existing independently of waves. In his **Theory of the Double Solution**, he proposed that a physical particle is actually a **soliton**: an intense, localized concentration of wave energy where nonlinear self-focusing counteracts dispersion, holding the packet together like a cohesive body. This dense core remains seamlessly embedded within, and guided by, a broader linear phase wave.
-
-In Dzog, every moving actor—from a rapid plasma bolt to a drifting mineral shard—is an executable instantiation of de Broglie’s double solution. Projectiles are self-focusing wave packets. High-amplitude peaks draw themselves inward, preserving their structural boundaries across the screen without relying on artificial rigid-body containers. An entity persists not because it is an immutable noun, but because it is an ongoing, stable process of self-cohesion within the field.
-
----
-
-### III. Guidance by Geometric Form: Bohm–Hiley Active Information
-
-Classical physics assumes that waves influence bodies purely through energetic brute force: a larger wave exerts greater radiation pressure, while a subtle ripple does nothing.
-
-In *The Undivided Universe* (1993), **David Bohm** and **Basil Hiley** demonstrated an entirely different mode of physical organization: **Active Information**, mediated by the **Quantum Potential** ($Q$):
+In everyday mechanics, we assume that one body influences another through brute force, where a larger wave pushes a floating vessel harder than a small ripple. In their collaborative work, *The Undivided Universe*, David Bohm and Basil Hiley revealed a subtler and more profound principle of organization, which they called Active Information. This guidance is expressed through the Quantum Potential ($Q$):
 
 $$Q = -\frac{\nabla^2 R}{R}$$
 
-To understand what this equation means without a technical background, consider its two components:
-* $R$ is the **amplitude** of the wave at any point—how tall or short the ripple is.
-* $\nabla^2 R$ (the spatial curvature or Laplacian) measures the wave's **shape**—how sharply it curves into a peak or dips into a valley compared to the surrounding region.
+We can understand the meaning of this relationship by looking simply at its two parts. The symbol $R$ represents the height or amplitude of the wave at a given place, telling us how much raw energy is present there. The expression $\nabla^2 R$ measures the spatial curvature of the wave, describing how sharply the wave bends into a peak or dips into a valley across a local neighborhood.
 
-When you divide curvature by height ($\nabla^2 R / R$), **raw energy scales out of the equation.** A violent shockwave and an almost imperceptible ripple, if they share the same geometric shape, produce the exact same quantum potential $Q$. 
+When we divide the wave's curvature ($\nabla^2 R$) by its height ($R$), the raw scale of the energy cancels out. What remains is pure geometric form. A towering wave and a whisper-faint ripple, provided they share the same spatial contour, generate the exact same quantum potential.
 
-Bohm and Hiley compared this to a ship guided by a radio signal: the radio wave does not push the vessel with mechanical power; rather, the *form* of the wave informs the ship’s engines where to steer. $Q$ is not a brute force; it is **Active Information**—it "gives form from within."
+Bohm and Hiley illustrated this through the image of a ship guided by automatic radar. The faint radio waves arriving from a beacon carry very little mechanical energy, yet they contain a clear geometric structure. The ship's receiver reads this form and uses its own internal engines to steer a course through the harbor. The wave informs the vessel's activity from within.
 
-The Dzog engine calculates $Q$ directly across the lattice to provide **emergent navigation without search graphs**:
-* **Autonomous Swarm Formations:** A mothership radiates a low-amplitude standing wave, carving subtle geometric valleys into the surrounding medium. Drones reading the local curvature naturally settle into these valleys, forming disciplined geometric swarms (analogous to Chladni acoustic patterns) without explicit coordination scripts.
-* **Organic Obstacle Avoidance:** When an asteroid or an incoming wave enters the environment, it diffracts and bends the standing carrier wave. Because the surrounding craft follow the curvature of $Q$, the entire formation smoothly flexes around the obstacle and recombines on the other side. Navigation is not an algorithmic search over an abstract graph; it is the natural consequence of matter relaxing into the geometry of its medium.
+By evaluating the Quantum Potential across the lattice, the engine allows autonomous craft to navigate through the geometry of the medium itself. A carrier vessel radiates a gentle, multi-lobed standing wave that carves subtle valleys of curvature into the surrounding space, much as a musical tone arranges sand into geometric patterns on a vibrating metal plate. Smaller drones sense the local curvature of the field and settle naturally into these quiet valleys, moving together as a coherent formation. When a drifting asteroid enters the area, it bends and diffracts the standing wave. Because the drones follow the contour of the field, the entire formation parts smoothly around the obstacle and gathers together again on the far side.
 
----
+### IV. Topological Integrity and Transformation
 
-### IV. Topological Continuity vs. State Accounting
+When we view objects as continuous patterns of the medium, our understanding of durability, fracture, and renewal changes fundamentally. A solid crystalline structure is a region of the lattice where neighboring cells share a strong commitment of material cohesion.
 
-In traditional game engines, an object's life is tracked by a detached integer (`hp: 3`). When this counter reaches zero, the object is deleted and replaced by a pre-baked fracture model. 
+When a high-energy wave crosses from open space into a dense mineral body, the boundary responds according to the natural contrast in stiffness and density between the two regions. Dense volcanic stone reflects glancing energy waves, while resonant quartz transmits rapid internal vibrations. When mechanical stress inside a body exceeds the material's threshold, the bond of cohesion between cells begins to erode along the natural planes of highest shear. Partially fractured channels guide subsequent stress waves deeper along the fault line until the structure physically divides into independent, tumbling fragments that carry their momentum forward.
 
-In Dzog, durability and damage are direct expressions of **topological continuity**:
-* **Intrinsic Boundary Reflection:** When a wave encounters a boundary between two regions, the proportion of reflected versus transmitted energy is governed automatically by the contrast in material stiffness and density. Dense minerals reflect glancing laser pulses without special-case collision logic, while softer media absorb and disperse the impact.
-* **Topological Cleaving:** When internal mechanical stress exceeds a material's yield threshold, cohesion erodes along the lines of maximum shear. Partially fractured regions act as internal waveguides, trapping subsequent shockwaves and driving the crack forward until the body physically divides into separate, momentum-conserving components. 
-* **Crystalline Annealing:** Because structure is stored as continuous material commitment rather than a static polygon, destruction is physically reversible. Capturing a resonant energy condensate initiates exciton annealing, regrowing severed crystal wings cell by cell outward from the surviving core.
+Because structure is a living state of the medium, brokenness can also be healed. When a damaged vessel absorbs a resonant energy condensate, the process of exciton annealing begins, and new crystalline bonds grow outward cell by cell from the surviving core to restore the severed wing. Even defensive action follows the law of harmony. By emitting an antiphase wave whose crests align with the troughs of an incoming barrage, a vessel calms the approaching turbulence into stillness and draws the conserved wave energy directly into its own reserves.
 
----
+### V. The Situated Image and Direct Perception
 
-### V. Inherent Perception: The Situated Image
+In his work *An Inquiry into Image*, the psychologist and philosopher James Hillman invited us to appreciate the richness of the situated image, where the meaning and character of a phenomenon reside wholly within its actual context and relationships. In a similar spirit, contemplative traditions remind us that perception is the immediate display (*Rolpa*) of the underlying ground.
 
-In *An Inquiry into Image* (1977), psychologist **James Hillman** warned against reducing living phenomena to detached **symbols**—abstract tokens that merely stand in for something else. He advocated for the **situated image**: a phenomenon whose meaning and qualities inhere entirely within its actual relations and environmental context.
+In the Dzog engine, sight and sound are direct projections of the physical field. When wave energy compresses a crystal or opens a fracture line, it excites a luminescence field that diffuses outward through space, casting real directional light across the facets of neighboring mineral bodies before cooling into dark, condensing trails. Sound arises through the same unity. Virtual acoustic sensors on the vessel's hull sample the actual pressure waves washing against the ship, driving a real-time modal synthesizer whose tones reflect the physical wave speed of the struck material. Quartz rings with bright, clear harmonics, while dense stone yields a deep, resonant strike.
 
-In Dzog, perceptual rendering (visuals, diagnostic views, dynamic illumination, and sound) is not a decorative pipeline layered over an abstract backend. It is an **inseparable projection of the physical lattice**:
-* **Field-Driven Luminescence:** High-frequency wave impacts and crystal shear stress excite a reaction-diffusion luminescence field. This field diffuses across space and illuminates the facets of rotating mineral bodies in real time, eventually cooling into dark, condensing wake patterns.
-* **Modal Audio Synthesis:** The engine uses zero pre-recorded audio clips. Virtual acoustic pickups on the player's hull sample local pressure variations in real time, driving a modal synthesizer whose resonance frequencies derive directly from the acoustic wave speed of the struck material. Striking quartz rings with bright, crystalline resonance; striking dense obsidian yields a dull, heavy report.
-* **Multiple Perceptual Projections:** Because all phenomena inhere in the same underlying lattice, observers can cycle through multiple diagnostic windows into the same truth: inspecting the composite scene, revealing the invisible pilot-wave channels of $Q$, mapping the directional flux of energy, or auditing material cohesion. Presentation never overrides physical law.
+Because all phenomena unfold within one unified lattice, an observer can also shift their perceptual lens to examine different facets of the same reality: viewing the composite luminous scene, revealing the subtle pilot-wave valleys of the Quantum Potential, tracing the directional flow of energy, or inspecting the internal cohesion of matter. Every view remains faithful to the same underlying activity.
 
----
+### VI. Participating in the Unfolding Whole
 
-### VI. Counterfactual Branching in a Deterministic Medium
+When the state of a world is fragmented across thousands of disconnected data structures, understanding how a small change shapes the whole becomes exceedingly difficult. When the entire state of the world resides within a single, continuous field governed by local laws, the causal flow of the universe becomes transparent.
 
-Traditional object-oriented architectures make exploring counterfactual histories ("What if?") notoriously expensive. With state scattered across heaps, pointers, and opaque event queues, branching the world requires clumsy serialization layers that quickly fall out of sync.
+At any moment, an author or participant can capture a complete snapshot of the physical ground, introduce a slight change in phase or material stiffness, and watch the alternative history unfold alongside the original path. Because every interaction propagates step by step from cell to neighbor, we can explore how gentle shifts in local geometry ripple outward to transform the entire ecology.
 
-In Dzog, the world’s entire state lives in uniform, contiguous lattice buffers governed by local, reversible physical laws. This architectural purity unlocks an unprecedented freedom: **instantaneous counterfactual branching**.
-
-At any moment, an author, player, or autonomous agent can snapshot the total physical ground. By altering a single boundary condition—inverting a wave's phase, puncturing a shield, or tuning an obstacle’s acoustic impedance—one can project the alternative future forward in real time. Because causality flows strictly from cell to neighbor without hidden side-effects, different branches can be compared side-by-side and committed or rewound with bit-exact fidelity. Epistemology catches up to ontology: we can understand the world because we can participate in its lawful unfolding.
-
----
-
-### Conclusion: The Relational Universe
-
-For the computer scientist, **Field-First Computing** offers an escape from the combinatorial bottlenecks of object-oriented architectures. By offloading interaction to local field dynamics, complex multi-body behaviors—diffraction, interference shielding, stress fractures, swarm guidance, and material acoustics—emerge naturally without bespoke glue code.
-
-For the philosopher and contemplative, the engine serves as an interactive proof of concept: **a complex, lawful, and responsive universe does not require a dualistic separation between empty space and isolated matter, or between underlying state and perceived display.** 
-
-There is only the medium, the lawful patterns that maintain their identity within it, and the rich relational tapestry that unfolds when the space between things is recognized as fully alive.
+For the engineer, field-first computing offers a natural path toward resilient, emergent worlds where complex interactions arise from simple, local laws. For the philosopher and contemplative, it offers a clear window into a relational universe. It shows us how a world of rich form, agency, and beauty can unfold within an undivided medium, where every entity is a continuous verb and the space between all things is recognized as whole and alive.
