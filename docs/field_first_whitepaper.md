@@ -1,5 +1,7 @@
 # Field-First Computing: The Dzog Engine Handbook
 
+<small>by [Jonathan Dunlap](https://www.linkedin.com/in/jonathandunlap/)</small>
+
 **Abstract**: Conventional simulation and game engines model virtual worlds as collections of isolated data structures sitting in empty coordinate space. Objects remain inert until an explicit collision check or event bus schedules an imperative callback, requiring brittle $O(N^2)$ state scripts to coordinate cross-entity behavior. **Dzog** implements an alternative paradigm: *relation-first computing* over a continuous physical field. Building on **Louis de Broglie's** *Nonlinear Wave Mechanics* (the Theory of the Double Solution), **David Bohm and Basil Hiley's** process-first formulation of quantum mechanics (*active information* and the Quantum Potential $Q$), and **James Hillman's** concept of the *situated image*, Dzog treats the spatial medium itself as the primary computational substrate. Every actor—whether a projectile, a destructible crystal asteroid, a shield, or an autonomous swarm—is a persistent pattern of wave excitation and material commitment within a shared Hamiltonian lattice. Because the medium mediates all causality, collision response, structural fracture, AI navigation, dynamic lighting, and real-time audio synthesis emerge directly from local physical laws rather than special-case scripts.
 
 ---
